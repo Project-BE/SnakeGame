@@ -3,8 +3,6 @@ const ctx = canvas.getContext('2d');
 const eatSound = document.getElementById('eatSound');
 eatSound.volume = 1.0;
 
-
-
 const gridSize = 20;
 let snake = [
   { x: 100, y: 100, color: '#FF1493' }, // Cabeça
@@ -17,11 +15,11 @@ let score = 0;
 
 // Obter o Best Score do armazenamento
 let bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
-document.getElementById('best-score-value').textContent = bestScore;
 
+document.getElementById('best-score-value').textContent = bestScore;
 document.addEventListener('keydown', handleKeyPress);
 
-function handleKeyPress(event) {
+function handleKeyPress(event) { // Função com switch para as direções da cobra no jogo
   switch (event.key) {
     case 'ArrowUp':
       if (direction !== 'down') {
@@ -62,7 +60,7 @@ function draw() {
 }
 
 function update() {
-  // Atualizar a posição da cobra com base na direção
+  // Função para atualizar a posição da cobra com base na direção
   let newHead;
   switch (direction) {
     case 'up':
