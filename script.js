@@ -1,11 +1,11 @@
-const canvas = document.getElementById('snakeCanvas');
-const ctx = canvas.getContext('2d');
-const eatSound = document.getElementById('eatSound');
-eatSound.volume = 1.0;
+const canvas = document.getElementById('snakeCanvas'); // Constante que pega o elemento snakeCanvas do HTML
+const ctx = canvas.getContext('2d'); // Salva o contexto da tag canvas para 2d
+const eatSound = document.getElementById('eatSound'); // Constante que pega o elemento eatSound do HTML 
+eatSound.volume = 1.0; // Define o volume do áudio 
+const gridSize = 20; // Define o tamanho do grid 
 
-const gridSize = 20;
 let snake = [
-  { x: 100, y: 100, color: '#FF1493' }, // Cabeça
+  { x: 100, y: 20, color: '#FF1493' }, // Cabeça
   { x: 80, y: 100, color: '#FF1493' }   // Corpo inicial
 ];
 let apple = { x: 200, y: 200, color: 'red' }; 
@@ -26,7 +26,7 @@ function handleKeyPress(event) { // Função com switch para as direções da co
         direction = 'up';
       }
       break;
-    case 'ArrowDown':
+    case 'ArrowDown': 
       if (direction !== 'up') {
         direction = 'down';
       }
@@ -43,24 +43,19 @@ function handleKeyPress(event) { // Função com switch para as direções da co
       break;
   }
 }
-
 function draw() {
-  // Limpar o canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas
 
-  // Desenhar a maçã
   ctx.fillStyle = apple.color;
-  ctx.fillRect(apple.x, apple.y, gridSize, gridSize);
+  ctx.fillRect(apple.x, apple.y, gridSize, gridSize); // Desenha a maçã no local exato do grid
 
-  // Desenhar a cobra
   snake.forEach(segment => {
     ctx.fillStyle = segment.color;
-    ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
+    ctx.fillRect(segment.x, segment.y, gridSize, gridSize); // Desenha a cobra por segmento de acordo com o que foi definido
   });
 }
 
 function update() {
-  // Função para atualizar a posição da cobra com base na direção
   let newHead;
   switch (direction) {
     case 'up':
@@ -76,124 +71,97 @@ function update() {
       newHead = { x: snake[0].x + gridSize, y: snake[0].y, color: getNextColor(snake[0].color) };
       break;
   }
-  snake.unshift(newHead);
+  snake.unshift(newHead); // Cria uma nova cabeça a cada movimento da cobra pelo canva, gerando novas cores a cada bloco do grid
 
-  // Verificar se a cobra comeu a maçã
   if (newHead.x === apple.x && newHead.y === apple.y) {
-    // Gerar nova posição para a maçã
     apple.x = Math.floor(Math.random() * canvas.width / gridSize) * gridSize;
     apple.y = Math.floor(Math.random() * canvas.height / gridSize) * gridSize;
-    apple.color = 'red'; // Cor da maçã é sempre vermelha
+    apple.color = 'red'; 
 
-    // Aumentar a pontuação
     score++;
     eatSound.play();
 
-    // Atualizar o Best Score se necessário
     if (score > bestScore) {
       bestScore = score;
       localStorage.setItem('bestScore', bestScore);
       document.getElementById('best-score-value').textContent = bestScore;
     }
-
-    // Ajustar a velocidade (quanto menor, mais devagar)
-    speed = Math.max(100, speed - 5);
+    speed = Math.max(100, speed - 5); // Diminui a velocidade do jogo, sendo que a cobra fica mais rapida 
     clearInterval(gameInterval);
     gameInterval = setInterval(gameLoop, speed);
   } else {
-    // Remover a cauda da cobra se não comeu a maçã
-    snake.pop();
+    snake.pop(); // Quando come a maçã, a cobra cresce e remove o último elemento da cauda para que não fique solta no jogo
   }
-
   // Atualizar a pontuação atual
   document.getElementById('current-score').textContent = score;
 }
 
 function getNextColor(currentColor) {
-  // Lista de cores
   const colors = ['#FF1493', '#FF8C00', '#FFD700', '#008000', '#0000FF', '#4B0082'];
   const currentIndex = colors.indexOf(currentColor);
   const nextIndex = (currentIndex + 1) % colors.length;
-  return colors[nextIndex];
+  return colors[nextIndex]; // Fica gerando novas cores (que estão no array 'colors') para a cobra a cada movimento
 }
 
 function checkCollision() {
-  // Verificar colisão com as bordas
   if (
     snake[0].x < 0 || snake[0].x >= canvas.width ||
     snake[0].y < 0 || snake[0].y >= canvas.height
   ) {
-    gameOver();
+    gameOver(); // Verifica se há colisão com as bordas do canvas, caso passe dos 400 x 400, gameover() é ativada
   }
 
-  // Verificar colisão consigo mesma
   for (let i = 1; i < snake.length; i++) {
     if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
-      gameOver();
+      gameOver(); // Verifica no eixo X e Y se teve colisão da cobra com o próprio corpo, caso tenha, gameover() é chamada
     }
   }
 }
-
 function resetGame() {
-  // Reiniciar a posição inicial da cobra e da maçã
   snake = [
-    { x: 100, y: 100, color: '#FF1493' }, // Cabeça
-    { x: 80, y: 100, color: '#FF1493' }   // Corpo inicial
+    { x: 100, y: 100, color: '#FF1493' }, 
+    { x: 80, y: 100, color: '#FF1493' }   
   ];
   apple = { x: 200, y: 200, color: 'red' };
   direction = 'right';
   score = 0;
   speed = 150;
-  // Iniciar o jogo novamente
-  gameInterval = setInterval(gameLoop, speed);
-  
-  // Ocultar o contêiner do game over
-  document.getElementById('game-over-container').style.display = 'none';
-}
 
+  gameInterval = setInterval(gameLoop, speed); // Reinicia o jogo com as mesmas características iniciais
+  
+  document.getElementById('game-over-container').style.display = 'none';  // Esconde o container de game over
+}
 function gameOver() {
   clearInterval(gameInterval);
 
-  // Limpar o canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas
 
-  // Exibir "Game Over"
   ctx.fillStyle = '#fa76bd';
   ctx.font = '30px Anta';
+  ctx.fillText('Game Over', canvas.width / 2 - 80, canvas.height / 2 - 15); // Mostra  a mensagem de game over
 
-  ctx.fillText('Game Over', canvas.width / 2 - 80, canvas.height / 2 - 15);
-
-  // Exibir pontuação final
   ctx.fillStyle = '#fff';
   ctx.font = '17px Arial';
-  ctx.fillText('Your Score: ' + score, canvas.width / 2 - 53, canvas.height / 2 + 15);
+  ctx.fillText('Your Score: ' + score, canvas.width / 2 - 53, canvas.height / 2 + 15); // Mostra a pontuação quando perde
   
-  // Exibir botão "Play Again"
   document.getElementById('play-again').style.display = 'block';
-
-  // Exibir contêiner do game over
-  document.getElementById('game-over-container').style.display = 'flex'; // Alterado para 'flex'
-  snake.style.display = 'none'
+  document.getElementById('game-over-container').style.display = 'flex'; // Mostra o botao de play again e o container de game over
+  snake.style.display = 'none' // Esconde a cobra do jogo
 }
-
-
-// Adicione esta função para começar o jogo apenas quando pressionar a tecla de espaço
 function startGame() {
-  document.removeEventListener('keydown', startGame); // Remover o ouvinte de tecla inicial
-  gameInterval = setInterval(gameLoop, speed); // Iniciar o jogo
+  document.removeEventListener('keydown', startGame); // Desabilita o startgame pelo 'keydown' após o inicio
+  gameInterval = setInterval(gameLoop, speed); // Iniciar o jogo com as mesma características iniciais
 
-  document.getElementById('start-game').style.display = 'none'; // Oculta o botão
-   document.removeEventListener('keydown', startGame); // Remove o ouvinte de tecla inicial
+  document.getElementById('start-game').style.display = 'none'; // Oculta o botão de start após o inicio 
+   document.removeEventListener('keydown', startGame); // Desabilita o startgame pelo 'keydown' após o inicio
 }
-
-// Adicione este ouvinte de tecla para começar o jogo quando pressionar a tecla de espaço
 document.addEventListener('keydown', function (event) {
-  if (event.key === ' ') {
+  if (event.key === ' ') { // Inicia o jogo quando é pressionado espaço
     startGame();
   }
 });
 
-function gameLoop() {
+function gameLoop() { // Faz o loop do jogo
   update();
   checkCollision();
   draw();
